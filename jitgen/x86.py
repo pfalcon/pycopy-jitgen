@@ -50,14 +50,24 @@ MOV_R_RM_32 = 0x8b
 EXT = 0xff
 EXT_CALL_RM = 2
 
-EAX = 0
-ECX = 1
-EDX = 2
-EBX = 3
-ESP = 4
-EBP = 5
-ESI = 6
-EDI = 7
+
+class Reg32:
+
+    def __init__(self, id):
+        self.id = id
+
+    def __repr__(self):
+        return "<Reg32 %d>" % self.id
+
+
+EAX = Reg32(0)
+ECX = Reg32(1)
+EDX = Reg32(2)
+EBX = Reg32(3)
+ESP = Reg32(4)
+EBP = Reg32(5)
+ESI = Reg32(6)
+EDI = Reg32(7)
 
 
 py = ffi.open(None)
@@ -92,25 +102,47 @@ class Codegen:
         self.emit(MOV_R_RM_32)
         self.emit(self.modrm(3, dest_reg, src_reg))
 
+    def mov(self, dst, src):
+        if isinstance(src, Reg32):
+            self.mov_rr32(dst.id, src.id)
+        elif isinstance(src, int):
+            self.mov_imm(dst.id, src)
+        else:
+            raise NotImplementedError
+
     def load(self, dest_reg, base_reg, offset):
         self.emit(MOV_R_RM_32)
-        self.emit(self.modrm(1, dest_reg, base_reg))
+        self.emit(self.modrm(1, dest_reg.id, base_reg.id))
         self.emit(offset & 0xff)
 
     def ret(self):
         self.emit(RET)
 
-    def push(self, r):
+    def push_r(self, r):
         self.emit(PUSH_R + r)
 
-    def pop(self, r):
+    def pop_r(self, r):
         self.emit(POP_R + r)
 
     def push_imm(self, v):
         self.emit(PUSH_IMM32)
         self.emit32(v)
 
-    def call(self, v):
+    def push(self, src):
+        if isinstance(src, Reg32):
+            self.push_r(src.id)
+        elif isinstance(src, int):
+            self.push_imm(src)
+        else:
+            raise NotImplementedError
+
+    def pop(self, dst):
+        if isinstance(dst, Reg32):
+            self.pop_r(dst.id)
+        else:
+            raise NotImplementedError
+
+    def call_imm(self, v):
         self.emit(CALL)
         na = self._addr + self.i + 4
         #print(na, v, v - na)
@@ -119,23 +151,39 @@ class Codegen:
     def call_sym(self, sym):
         p = py.addr(sym)
         #print("Addr of %s:" % sym, hex(p))
-        self.call(p)
+        self.call_imm(p)
 
     def call_r(self, r):
         self.emit(EXT)
         self.emit(self.modrm(3, EXT_CALL_RM, r))
+
+    def call(self, arg):
+        if isinstance(arg, Reg32):
+            self.call_r(arg.id)
+        elif isinstance(arg, int):
+            self.call_imm(arg)
+        elif isinstance(arg, str):
+            self.call_sym(arg)
+        else:
+            raise NotImplementedError
 
     def sub_imm(self, r, v):
         self.emit(ARITH_IMM8)
         self.emit(self.modrm(3, ARITH_ADD, r))
         self.emit(v)
 
+    def sub(self, arg1, arg2):
+        if isinstance(arg2, int):
+            self.sub_imm(arg1.id, arg2)
+        else:
+            raise NotImplementedError
+
     def pop_args(self, num_args):
-        self.sub_imm(ESP, num_args * 4)
+        self.sub(ESP, num_args * 4)
 
     def prolog(self):
         self.push(EBP)
-        self.mov_rr32(EBP, ESP)
+        self.mov(EBP, ESP)
 
     def epilog(self):
         self.pop(EBP)
