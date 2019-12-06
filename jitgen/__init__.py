@@ -1,5 +1,5 @@
 # (c) 2015-2018 Paul Sokolovsky. MIT license.
-import array
+import uarray as array
 import ffi
 import uctypes
 from ubinascii import hexlify
