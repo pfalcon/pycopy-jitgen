@@ -25,10 +25,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import array
 import ffi
 import uctypes
-from ubinascii import hexlify
 
 
 RET = 0xc3
