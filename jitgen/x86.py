@@ -88,14 +88,14 @@ class Codegen:
         self.emit(MOV_R_IMM + r)
         self.emit32(v)
 
+    def mov_rr32(self, dest_reg, src_reg):
+        self.emit(MOV_R_RM_32)
+        self.emit(self.modrm(3, dest_reg, src_reg))
+
     def load(self, dest_reg, base_reg, offset):
         self.emit(MOV_R_RM_32)
         self.emit(self.modrm(1, dest_reg, base_reg))
         self.emit(offset & 0xff)
-
-    def mov_rr32(self, dest_reg, src_reg):
-        self.emit(MOV_R_RM_32)
-        self.emit(self.modrm(3, dest_reg, src_reg))
 
     def ret(self):
         self.emit(RET)
