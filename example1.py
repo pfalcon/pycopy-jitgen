@@ -4,17 +4,16 @@ from jitgen import alloc_exec
 from jitgen.x86 import *
 
 
-b = alloc_exec(64)
+b = alloc_exec(50)
 addr = uctypes.addressof(b)
-print("Buf addr:", hex(addr & 0xffffffff))
+print("Executable buffer addr:", hex(addr & 0xffffffff))
 
 c = Codegen(b)
 c.mov(EAX, 10000)
 c.ret()
-print(b)
+print("code:", hexlify(b))
 f = ffi.func("i", addr, "")
-print(f)
-print(f())
+print("result:", f())
 
 c = Codegen(b)
 c.push(0)
@@ -22,9 +21,8 @@ c.call("mp_obj_new_dict")
 c.pop_args(1)
 c.ret()
 print("code:", hexlify(b))
-
-f = ffi.func("O", uctypes.addressof(b), "")
-print(f())
+f = ffi.func("O", addr, "")
+print("result:", f())
 
 c = Codegen(b)
 c.prolog()
@@ -37,7 +35,6 @@ c.call(ECX)
 c.pop_args(2)
 c.epilog()
 print("code:", hexlify(b))
-
-f = ffi.func("O", uctypes.addressof(b), "O")
+f = ffi.func("O", addr, "O")
 res = f({1:2})
-print("res:", res)
+print("result:", res)
