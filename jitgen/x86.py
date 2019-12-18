@@ -29,6 +29,11 @@ import ffi
 import uctypes
 
 
+MOD_IND = 0
+MOD_IND8 = 1
+MOD_IND32 = 2
+MOD_REG = 3
+
 RET = 0xc3
 MOV_R_IMM = 0xb8
 PUSH_R = 0x50
@@ -100,7 +105,7 @@ class Codegen:
 
     def mov_rr32(self, dest_reg, src_reg):
         self.emit(MOV_R_RM_32)
-        self.emit(self.modrm(3, dest_reg, src_reg))
+        self.emit(self.modrm(MOD_REG, dest_reg, src_reg))
 
     def mov(self, dst, src):
         if isinstance(src, Reg32):
@@ -112,7 +117,7 @@ class Codegen:
 
     def load(self, dest_reg, base_reg, offset):
         self.emit(MOV_R_RM_32)
-        self.emit(self.modrm(1, dest_reg.id, base_reg.id))
+        self.emit(self.modrm(MOD_IND8, dest_reg.id, base_reg.id))
         self.emit(offset & 0xff)
 
     def ret(self):
@@ -155,7 +160,7 @@ class Codegen:
 
     def call_r(self, r):
         self.emit(EXT)
-        self.emit(self.modrm(3, EXT_CALL_RM, r))
+        self.emit(self.modrm(MOD_REG, EXT_CALL_RM, r))
 
     def call(self, arg):
         if isinstance(arg, Reg32):
@@ -169,7 +174,7 @@ class Codegen:
 
     def sub_imm(self, r, v):
         self.emit(ARITH_IMM8)
-        self.emit(self.modrm(3, ARITH_ADD, r))
+        self.emit(self.modrm(MOD_REG, ARITH_ADD, r))
         self.emit(v)
 
     def sub(self, arg1, arg2):
