@@ -28,6 +28,8 @@
 import ffi
 import uctypes
 
+from .base import BaseCodegen
+
 
 MOD_IND = 0
 MOD_IND8 = 1
@@ -78,16 +80,7 @@ EDI = Reg32(7)
 py = ffi.open(None)
 
 
-class Codegen:
-
-    def __init__(self, buf):
-        self.b = buf
-        self._addr = uctypes.addressof(buf)
-        self.i = 0
-
-    def emit(self, b):
-        self.b[self.i] = b
-        self.i += 1
+class Codegen(BaseCodegen):
 
     def emit32(self, v):
         v &= 0xffffffff
