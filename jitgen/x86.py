@@ -47,10 +47,12 @@ JMP = 0xe9
 CALL = 0xe8
 #JMP_ABS = 0xea
 #CALL_ABS = 0x9a
+ADD = 0x01
+SUB = 0x29
 ARITH_IMM8 = 0x83
-ARITH_ADD = 0
-ARITH_SUB = 5
-ARITH_CMP = 7
+ADD_IMM = 0
+SUB_IMM = 5
+CMP_IMM = 7
 MOV_RM_R_32 = 0x89
 MOV_R_RM_32 = 0x8b
 
@@ -165,16 +167,26 @@ class Codegen(BaseCodegen):
         else:
             raise NotImplementedError
 
-    def sub_imm(self, r, v):
+    def arith_rr32(self, op, reg1, reg2):
+        self.emit(op)
+        self.emit(self.modrm(MOD_REG, reg2.id, reg1.id))
+
+    def arith_r32_imm8(self, op, reg, v):
         self.emit(ARITH_IMM8)
-        self.emit(self.modrm(MOD_REG, ARITH_ADD, r))
+        self.emit(self.modrm(MOD_REG, op, reg.id))
         self.emit(v)
+
+    def add(self, arg1, arg2):
+        if isinstance(arg2, int):
+            self.arith_r32_imm8(ADD_IMM, arg1, arg2)
+        else:
+            self.arith_rr32(ADD, arg1, arg2)
 
     def sub(self, arg1, arg2):
         if isinstance(arg2, int):
-            self.sub_imm(arg1.id, arg2)
+            self.arith_r32_imm8(SUB_IMM, arg1, arg2)
         else:
-            raise NotImplementedError
+            self.arith_rr32(SUB, arg1, arg2)
 
     def pop_args(self, num_args):
         self.sub(ESP, num_args * 4)
