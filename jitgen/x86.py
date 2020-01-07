@@ -203,6 +203,12 @@ class Codegen(BaseCodegen):
         else:
             self.arith_rr32(SUB, arg1, arg2)
 
+    def and_(self, arg1, arg2):
+        if isinstance(arg2, int):
+            self.arith_r32_imm8(AND_IMM, arg1, arg2)
+        else:
+            self.arith_rr32(AND, arg1, arg2)
+
     def pop_args(self, num_args):
         self.sub(ESP, num_args * 4)
 
