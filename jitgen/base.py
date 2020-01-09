@@ -38,3 +38,7 @@ class BaseCodegen:
     def emit(self, b):
         self.b[self.i] = b
         self.i += 1
+
+    def save(self, fname):
+        with open(fname, "wb") as f:
+            f.write(memoryview(self.b)[:self.i])
