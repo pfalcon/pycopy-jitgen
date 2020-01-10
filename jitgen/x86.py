@@ -74,6 +74,24 @@ MOV_R_RM_32 = 0x8b
 EXT = 0xff
 EXT_CALL_RM = 2
 
+# Condition codes for jcond()
+COND_O = 0x00
+COND_NO = 0x01
+COND_B = 0x02
+COND_AE = 0x03
+COND_Z = 0x04
+COND_NZ = 0x05
+COND_BE = 0x06
+COND_A = 0x07
+COND_S = 0x08
+COND_NS = 0x09
+COND_P = 0x0a
+COND_NP = 0x0b
+COND_L = 0x0c
+COND_GE = 0x0d
+COND_LE = 0x0e
+COND_G = 0x0f
+
 
 class Reg32:
 
@@ -156,6 +174,16 @@ class Codegen(BaseCodegen):
             self.pop_r(dst.id)
         else:
             raise NotImplementedError
+
+    def jmp(self, label):
+        self.emit(JMP_SHORT)
+        self.ref_label(label)
+        self.emit(0)
+
+    def jcond(self, cond, label):
+        self.emit(JCOND_SHORT + cond)
+        self.ref_label(label)
+        self.emit(0)
 
     def call_imm(self, v):
         self.emit(CALL)
