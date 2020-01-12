@@ -34,10 +34,28 @@ class BaseCodegen:
         self.b = buf
         self._addr = uctypes.addressof(buf)
         self.i = 0
+        self.labels = []
 
     def emit(self, b):
         self.b[self.i] = b
         self.i += 1
+
+    def get_label(self):
+        label = len(self.labels)
+        self.labels.append([None])
+        return label
+
+    # Put given label at the current position in instruction stream
+    def put_label(self, label):
+        self.labels[label][0] = self.i
+
+    # Mark that current position in instruction stream references label
+    def ref_label(self, label):
+        self.labels[label].append(self.i)
+
+    def link_labels(self):
+        # Should be implemented by subclass
+        raise NotImplementedError
 
     def save(self, fname):
         with open(fname, "wb") as f:
