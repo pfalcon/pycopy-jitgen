@@ -25,7 +25,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import ffi
 import uctypes
 
 from .base import BaseCodegen
@@ -114,9 +113,6 @@ EBP = Reg32(5)
 ESI = Reg32(6)
 EDI = Reg32(7)
 EIP = Reg32(-1)
-
-
-py = ffi.open(None)
 
 
 class Codegen(BaseCodegen):
@@ -233,7 +229,7 @@ class Codegen(BaseCodegen):
         self.call_rel(v - na)
 
     def call_sym(self, sym):
-        p = py.addr(sym)
+        p = self.lookup(sym)
         #print("Addr of %s:" % sym, hex(p))
         self.call_imm(p)
 

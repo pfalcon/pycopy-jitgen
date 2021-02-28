@@ -26,6 +26,7 @@
 # THE SOFTWARE.
 
 import uctypes
+import uerrno
 
 
 class BaseCodegen:
@@ -35,10 +36,27 @@ class BaseCodegen:
         self._addr = uctypes.addressof(buf)
         self.i = offset
         self.labels = []
+        self.modules = []
 
     def emit(self, b):
         self.b[self.i] = b
         self.i += 1
+
+    def lookup(self, sym):
+        for m in self.modules:
+            try:
+                addr = m.addr(sym)
+            except OSError as e:
+                if e.args[0] == uerrno.ENOENT:
+                    addr = None
+                else:
+                    raise
+            if addr is not None:
+                return addr
+        return None
+
+    def add_module(self, mod):
+        self.modules.append(mod)
 
     def get_label(self):
         label = len(self.labels)
