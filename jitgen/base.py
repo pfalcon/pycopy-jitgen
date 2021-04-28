@@ -37,12 +37,16 @@ class BaseCodegen:
         self.i = offset
         self.labels = []
         self.modules = []
+        self.symtab = {}
 
     def emit(self, b):
         self.b[self.i] = b
         self.i += 1
 
     def lookup(self, sym):
+        addr = self.symtab.get(sym)
+        if addr is not None:
+            return addr
         for m in self.modules:
             try:
                 addr = m.addr(sym)
@@ -57,6 +61,9 @@ class BaseCodegen:
 
     def add_module(self, mod):
         self.modules.append(mod)
+
+    def add_sym(self, sym, addr):
+        self.symtab[sym] = addr
 
     def get_label(self):
         label = len(self.labels)
