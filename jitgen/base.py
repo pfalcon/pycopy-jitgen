@@ -39,6 +39,9 @@ class BaseCodegen:
         self.modules = []
         self.symtab = {}
 
+    def offset(self):
+        return self.i
+
     def emit(self, b):
         self.b[self.i] = b
         self.i += 1
