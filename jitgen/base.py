@@ -42,6 +42,9 @@ class BaseCodegen:
     def offset(self):
         return self.i
 
+    def addr(self):
+        return self._addr + self.i
+
     def emit(self, b):
         self.b[self.i] = b
         self.i += 1
