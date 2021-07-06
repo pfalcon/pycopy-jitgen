@@ -49,6 +49,10 @@ class BaseCodegen:
         self.b[self.i] = b
         self.i += 1
 
+    def align(self, a):
+        # a should be power of 2
+        self.i = (self.i + a - 1) & ~(a - 1)
+
     def lookup(self, sym):
         addr = self.symtab.get(sym)
         if addr is not None:
