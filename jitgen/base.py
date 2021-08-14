@@ -49,6 +49,13 @@ class BaseCodegen:
         self.b[self.i] = b
         self.i += 1
 
+    def emit_bytes(self, data):
+        addr = self.addr()
+        l = len(data)
+        self.b[self.i:self.i + l] = data
+        self.i += l
+        return addr
+
     def align(self, a):
         # a should be power of 2
         self.i = (self.i + a - 1) & ~(a - 1)
