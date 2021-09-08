@@ -56,6 +56,11 @@ class BaseCodegen:
         self.i += l
         return addr
 
+    def reserve_bytes(self, sz):
+        addr = self.addr()
+        self.i += sz
+        return addr
+
     def align(self, a):
         # a should be power of 2
         self.i = (self.i + a - 1) & ~(a - 1)
