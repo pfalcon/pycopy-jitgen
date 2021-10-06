@@ -286,6 +286,12 @@ class Codegen(BaseCodegen):
         else:
             self.arith_rr32(XOR, arg1, arg2)
 
+    def cmp(self, arg1, arg2):
+        if isinstance(arg2, int):
+            self.arith_r32_imm8(CMP_IMM, arg1, arg2)
+        else:
+            self.arith_rr32(CMP, arg1, arg2)
+
     def test(self, arg1, arg2):
         if isinstance(arg2, int):
             if arg1.id == EAX.id:
