@@ -256,41 +256,29 @@ class Codegen(BaseCodegen):
         self.emit(self.modrm(MOD_REG, op, reg.id))
         self.emit(v)
 
-    def add(self, arg1, arg2):
+    def _arith(self, op, op_imm, arg1, arg2):
         if isinstance(arg2, int):
-            self.arith_r32_imm8(ADD_IMM, arg1, arg2)
+            self.arith_r32_imm8(op_imm, arg1, arg2)
         else:
-            self.arith_rr32(ADD, arg1, arg2)
+            self.arith_rr32(op, arg1, arg2)
+
+    def add(self, arg1, arg2):
+        self._arith(ADD, ADD_IMM, arg1, arg2)
 
     def sub(self, arg1, arg2):
-        if isinstance(arg2, int):
-            self.arith_r32_imm8(SUB_IMM, arg1, arg2)
-        else:
-            self.arith_rr32(SUB, arg1, arg2)
+        self._arith(SUB, SUB_IMM, arg1, arg2)
 
     def and_(self, arg1, arg2):
-        if isinstance(arg2, int):
-            self.arith_r32_imm8(AND_IMM, arg1, arg2)
-        else:
-            self.arith_rr32(AND, arg1, arg2)
+        self._arith(AND, AND_IMM, arg1, arg2)
 
     def or_(self, arg1, arg2):
-        if isinstance(arg2, int):
-            self.arith_r32_imm8(OR_IMM, arg1, arg2)
-        else:
-            self.arith_rr32(OR, arg1, arg2)
+        self._arith(OR, OR_IMM, arg1, arg2)
 
     def xor(self, arg1, arg2):
-        if isinstance(arg2, int):
-            self.arith_r32_imm8(XOR_IMM, arg1, arg2)
-        else:
-            self.arith_rr32(XOR, arg1, arg2)
+        self._arith(XOR, XOR_IMM, arg1, arg2)
 
     def cmp(self, arg1, arg2):
-        if isinstance(arg2, int):
-            self.arith_r32_imm8(CMP_IMM, arg1, arg2)
-        else:
-            self.arith_rr32(CMP, arg1, arg2)
+        self._arith(CMP, CMP_IMM, arg1, arg2)
 
     def test(self, arg1, arg2):
         if isinstance(arg2, int):
