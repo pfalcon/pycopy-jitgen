@@ -251,14 +251,21 @@ class Codegen(BaseCodegen):
         self.emit(op)
         self.emit(self.modrm(MOD_REG, reg2.id, reg1.id))
 
-    def arith_r32_imm8(self, op, reg, v):
-        self.emit(ARITH_IMM8)
+    def arith_r32_imm(self, op, reg, v):
+        if -128 <= v <= 127:
+            code = ARITH_IMM8
+        else:
+            code = ARITH_IMM32
+        self.emit(code)
         self.emit(self.modrm(MOD_REG, op, reg.id))
-        self.emit(v)
+        if code == ARITH_IMM8:
+            self.emit(v)
+        else:
+            self.emit32(v)
 
     def _arith(self, op, op_imm, arg1, arg2):
         if isinstance(arg2, int):
-            self.arith_r32_imm8(op_imm, arg1, arg2)
+            self.arith_r32_imm(op_imm, arg1, arg2)
         else:
             self.arith_rr32(op, arg1, arg2)
 
