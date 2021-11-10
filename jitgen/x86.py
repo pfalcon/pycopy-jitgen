@@ -127,6 +127,19 @@ class Codegen(BaseCodegen):
     def modrm(self, mod, r_op, r_m):
         return (mod << 6) | (r_op << 3) | r_m
 
+    def modrm_ind(self, r_op, r_m, offset):
+        if offset == 0:
+            mod = MOD_IND
+        elif -128 <= offset <= 127:
+            mod = MOD_IND8
+        else:
+            mod = MOD_IND32
+        self.emit((mod << 6) | (r_op << 3) | r_m)
+        if mod == MOD_IND8:
+            self.emit(offset)
+        elif mod == MOD_IND32:
+            self.emit32(offset)
+
     def opsize_pre(self, width):
         if width == 16:
             self.emit(PRE_OPSIZE)
@@ -160,16 +173,14 @@ class Codegen(BaseCodegen):
     def load(self, dest_reg, base_reg, offset=0, width=32):
         self.opsize_pre(width)
         self.emit(MOV_R_RM_8 if width == 8 else MOV_R_RM_32)
-        self.emit(self.modrm(MOD_IND8, dest_reg.id, base_reg.id))
-        self.emit(offset & 0xff)
+        self.modrm_ind(dest_reg.id, base_reg.id, offset)
 
     def _load_ext(self, opcode, dest_reg, base_reg, offset=0, width=32):
         if width == 32:
             return self.load(dest_reg, base_reg, offset, width)
         self.emit(0x0f)
         self.emit(opcode if width == 8 else opcode + 1)
-        self.emit(self.modrm(MOD_IND8, dest_reg.id, base_reg.id))
-        self.emit(offset & 0xff)
+        self.modrm_ind(dest_reg.id, base_reg.id, offset)
 
     def load_sext(self, dest_reg, base_reg, offset=0, width=32):
         self._load_ext(0xbe, dest_reg, base_reg, offset, width)
@@ -180,8 +191,7 @@ class Codegen(BaseCodegen):
     def store(self, src_reg, base_reg, offset=0, width=32):
         self.opsize_pre(width)
         self.emit(MOV_RM_R_8 if width == 8 else MOV_RM_R_32)
-        self.emit(self.modrm(MOD_IND8, src_reg.id, base_reg.id))
-        self.emit(offset & 0xff)
+        self.modrm_ind(src_reg.id, base_reg.id, offset)
 
     def ret(self):
         self.emit(RET)
