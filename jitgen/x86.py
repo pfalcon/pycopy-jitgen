@@ -125,7 +125,7 @@ class Codegen(BaseCodegen):
             v >>= 8
 
     def modrm(self, mod, r_op, r_m):
-        return (mod << 6) | (r_op << 3) | r_m
+        self.emit((mod << 6) | (r_op << 3) | r_m)
 
     def modrm_ind(self, r_op, r_m, offset):
         if offset == 0:
@@ -152,7 +152,7 @@ class Codegen(BaseCodegen):
 
     def mov_rr32(self, dest_reg, src_reg):
         self.emit(MOV_R_RM_32)
-        self.emit(self.modrm(MOD_REG, dest_reg, src_reg))
+        self.modrm(MOD_REG, dest_reg, src_reg)
 
     def mov(self, dst, src):
         if isinstance(src, Reg32):
@@ -245,7 +245,7 @@ class Codegen(BaseCodegen):
 
     def call_r(self, r):
         self.emit(EXT)
-        self.emit(self.modrm(MOD_REG, EXT_CALL_RM, r))
+        self.modrm(MOD_REG, EXT_CALL_RM, r)
 
     def call(self, arg):
         if isinstance(arg, Reg32):
@@ -259,7 +259,7 @@ class Codegen(BaseCodegen):
 
     def arith_rr32(self, op, reg1, reg2):
         self.emit(op)
-        self.emit(self.modrm(MOD_REG, reg2.id, reg1.id))
+        self.modrm(MOD_REG, reg2.id, reg1.id)
 
     def arith_r32_imm(self, op, reg, v):
         if -128 <= v <= 127:
@@ -267,7 +267,7 @@ class Codegen(BaseCodegen):
         else:
             code = ARITH_IMM32
         self.emit(code)
-        self.emit(self.modrm(MOD_REG, op, reg.id))
+        self.modrm(MOD_REG, op, reg.id)
         if code == ARITH_IMM8:
             self.emit(v)
         else:
