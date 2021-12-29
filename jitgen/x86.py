@@ -57,6 +57,14 @@ AND = 0x21
 SUB = 0x29
 XOR = 0x31
 CMP = 0x39
+
+SHF32_1 = 0xd1
+SHF32_IMM = 0xc1
+SHF32_CL = 0xd3
+SHF_SHL = 4
+SHF_SHR = 5
+SHF_SAR = 7
+
 ARITH_IMM8 = 0x83
 ARITH_IMM32 = 0x81
 ADD_IMM = 0
@@ -306,6 +314,30 @@ class Codegen(BaseCodegen):
                 raise NotImplementedError
         else:
             raise NotImplementedError
+
+    def _shift(self, op, arg1, arg2):
+        imm = 1
+        if isinstance(arg2, int):
+            imm = arg2
+            code = SHF32_IMM
+            if arg2 == 1:
+                code = SHF32_1
+        else:
+            assert arg2 is ECX
+            code = SHF32_CL
+        self.emit(code)
+        self.modrm(MOD_REG, op, arg1.id)
+        if imm != 1:
+            self.emit(imm)
+
+    def shl(self, arg1, arg2):
+        self._shift(SHF_SHL, arg1, arg2)
+
+    def shr(self, arg1, arg2):
+        self._shift(SHF_SHR, arg1, arg2)
+
+    def sar(self, arg1, arg2):
+        self._shift(SHF_SAR, arg1, arg2)
 
     def pop_args(self, num_args):
         self.sub(ESP, num_args * 4)
