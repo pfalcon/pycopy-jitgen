@@ -81,6 +81,10 @@ MOV_R_RM_8 = 0x8a
 MOV_R_RM_32 = 0x8b
 TEST_EAX_IMM = 0xa9
 
+ARITH_F7 = 0xf7
+ARITH_F7_NOT = 2
+ARITH_F7_NEG = 3
+
 EXT = 0xff
 EXT_CALL_RM = 2
 
@@ -338,6 +342,16 @@ class Codegen(BaseCodegen):
 
     def sar(self, arg1, arg2):
         self._shift(SHF_SAR, arg1, arg2)
+
+    def _arith_f7(self, op, reg):
+        self.emit(0xf7)
+        self.modrm(MOD_REG, op, reg.id)
+
+    def neg(self, reg):
+        self._arith_f7(ARITH_F7_NEG, reg)
+
+    def not_(self, reg):
+        self._arith_f7(ARITH_F7_NOT, reg)
 
     def pop_args(self, num_args):
         self.sub(ESP, num_args * 4)
