@@ -319,6 +319,17 @@ class Codegen(BaseCodegen):
         else:
             raise NotImplementedError
 
+    # Signed/unsigned multiply, lower word of result
+    def mul(self, arg1, arg2):
+        if isinstance(arg2, int):
+            self.emit(0x69)
+            self.modrm(MOD_REG, arg1.id, arg1.id)
+            self.emit32(arg2)
+        else:
+            self.emit(0x0f)
+            self.emit(0xaf)
+            self.modrm(MOD_REG, arg1.id, arg2.id)
+
     def _shift(self, op, arg1, arg2):
         imm = 1
         if isinstance(arg2, int):
