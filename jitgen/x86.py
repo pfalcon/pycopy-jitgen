@@ -84,6 +84,8 @@ TEST_EAX_IMM = 0xa9
 ARITH_F7 = 0xf7
 ARITH_F7_NOT = 2
 ARITH_F7_NEG = 3
+ARITH_F7_MUL = 4
+ARITH_F7_IMUL = 5
 
 EXT = 0xff
 EXT_CALL_RM = 2
@@ -329,6 +331,17 @@ class Codegen(BaseCodegen):
             self.emit(0x0f)
             self.emit(0xaf)
             self.modrm(MOD_REG, arg1.id, arg2.id)
+
+    def _mul_long(self, op, arg1, arg2):
+        assert arg1 is EAX
+        assert isinstance(arg2, Reg32)
+        self._arith_f7(op, arg2)
+
+    def smul_long(self, arg1, arg2):
+        self._mul_long(ARITH_F7_IMUL, arg1, arg2)
+
+    def umul_long(self, arg1, arg2):
+        self._mul_long(ARITH_F7_MUL, arg1, arg2)
 
     def _shift(self, op, arg1, arg2):
         imm = 1
